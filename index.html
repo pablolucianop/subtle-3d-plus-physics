@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <style>
+        body {
+            color: #61443e;
+            font-family:Monospace;
+            font-size:13px;
+            text-align:center;
+
+            background-color: #bfd1e5;
+            margin: 0px;
+            overflow: hidden;
+        }
+        #info {
+            position: absolute;
+            top: 0px; width: 100%;
+            padding: 5px;
+        }
+        .button { 
+            position: absolute;
+            left: 20vw; 
+            }
+        a { color: #a06851; }
+    </style>
+</head>
+	<body>
+		<button type="button" class="button" onclick="alert(4)">Click Me!</button>
+		<div id="container"><br /><br /><br /><br /><br />Loading...</div>
+    	<script src="build/three.js"></script>
+		<script src="js/libs/ammo.js"></script>
+		<script src="js/controls/OrbitControls.js"></script>
+		<script src="js/WebGL.js"></script>
+		<script src="js/libs/stats.min.js"></script>
+<script>
+let floorX = 146
+let floorY = 86
+let screenX = 1534
+let screenY = 862
+let numRingX = 0
+let numRingY = 0
+let numRingControl = 0
+var ringsizes = [3, 2, 1, 1, 1, 1, 2, 1, 3, 1, 3, 3, 2, 2, 1, 2, 1, 2, 2, 1, 1, 1, 1, 2, 1, 3, 1, 1, 1, 1, 2, 2, 1, 1, 1, 2, 2, 2, 2, 1, 1, 2, 2, 1, 1, 3, 2, 1, 1, 1, 2, 2, 1, 1, 1, 2]
+var coordenadas = [[31, 78], [82, 38], [130, 70], [142, 14], [212, 82], [224, 11], [264, 50], [312, 29], [394, 48], [455, 98], [509, 20], [637, 14], [561, 78],  [773, 0], [822, 28], [978, 28],  [1048, 78], [1100, 38], [1146, 68], [1160, 16], [1228, 82], [1241, 10], [1286, 49], [1329, 29], [1413, 49], [1470, 142], [1474, 97], [64, 760], [60, 806], [120, 854], [251, 854], [304, 820], [386, 834], [436, 863], [485, 823], [593, 809], [660, 849], [711, 809], [759, 839], [841, 852], [894, 820], [974, 824], [1078, 805], [1081, 760], [1137, 855], [1268, 854], [1324, 820], [1405, 834], [1452, 863], [1502, 823]]
+var fO = {
+    objectSize: 1.2,
+    color: purple,
+    posX: 10,
+    posY: 30,
+    posZ: rr(),
+    rotX: 0.9,
+    rotY: 0.9,
+    rotZ: Math.random() * 0.2,
+}
+
+var bodies = []
+var numBod = 0
+
+
+if ( WEBGL.isWebGLAvailable() === false ) {
+    document.body.appendChild( WEBGL.getWebGLErrorMessage() );
+    document.getElementById( 'container' ).innerHTML = "";
+}
+
+// Graphics variables
+var container, stats;
+var camera, scene, renderer;
+var terrainMesh;
+var clock = new THREE.Clock();
+var purple = "rgb(193, 16, 101)"
+var green = "rgb(12, 198, 198)"
+// Physics variables
+var collisionConfiguration;
+var dispatcher;
+var broadphase;
+var solver;
+var physicsWorld;
+var dynamicObjects = [];
+var transformAux1 = new Ammo.btTransform();
+var heightData = null;
+var ammoHeightData = null;
+var time = 0;
+var maxNumObjects = coordenadas.length;
+
+//Pablo
+var justAdded= false
+var subRingNum = 0
+var subRings = []
+
+   
+init();
+animate();
+
+    // setTimeout(function () { 
+    //     init();
+    //     animate();
+    //     justAdded = false
+    //     subRingNum = 0
+    //     subRings = []
+    //     numRingControl = 0
+    //     numBod =0
+    //     container, stats;
+    //     camera, scene, renderer;
+    //     terrainMesh;
+    //     clock = new THREE.Clock();
+    //     purple = "rgb(193, 16, 101)"
+    //     green = "rgb(12, 198, 198)"
+    //     //physics variables
+    //     collisionConfiguration;
+    //     dispatcher;
+    //     broadphase;
+    //     solver;
+    //     physicsWorld;
+    //     dynamicObjects = [];
+    //     transformAux1 = new Ammo.btTransform();
+    //     heightData = null;
+    //     ammoHeightData = null;
+    //     time = 0;
+    //     maxNumObjects = coordenadas.length;
+    //     numRingX = 1
+    //     numRingY = 1 
+    //     blo
+    //     justAdded = false
+    //     subRingNum = 0
+    //     subRings = []
+    //     scene = new THREE.Scene();
+
+    //     }, 9000);
+
+function init() {
+    initGraphics();
+    initPhysics();
+}
+    
+
+function initGraphics() {
+    container = document.getElementById( 'container' );
+    renderer = new THREE.WebGLRenderer();
+    renderer.setPixelRatio( window.devicePixelRatio );
+    renderer.setSize( window.innerWidth, window.innerHeight );
+    renderer.shadowMap.enabled = true;
+    container.innerHTML = "";
+    container.appendChild( renderer.domElement );
+    stats = new Stats();
+    stats.domElement.style.position = 'absolute';
+    stats.domElement.style.top = '0px';
+    container.appendChild( stats.domElement );
+
+    camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.2, 2000 );
+
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color( 0xbfd1e5 );
+    camera.position.y = 70
+    camera.position.z = 0
+    camera.lookAt( 0, 0, 0 );
+    var controls = new THREE.OrbitControls( camera );
+    var groundMaterial = new THREE.MeshLambertMaterial( { color: 0xC7C7C7 } );
+    terrainMesh = new THREE.Mesh(new THREE.BoxBufferGeometry(270,  1, 160), groundMaterial );
+    terrainMesh.receiveShadow = true;       
+    scene.add( terrainMesh );
+
+    var lightA = new THREE.AmbientLight(0xffffff, 0.6);
+    var light = new THREE.DirectionalLight( 0xffffff, 0.3 );
+    light.position.set( 100, 100, 20 );
+    light.castShadow = true;
+    var dLight = 200;
+    var sLight = dLight * 0.25;
+    light.shadow.camera.left = - sLight;
+    light.shadow.camera.right = sLight;
+    light.shadow.camera.top = sLight;
+    light.shadow.camera.bottom = - sLight;
+    light.shadow.camera.near = dLight / 30;
+    light.shadow.camera.far = dLight;
+    light.shadow.mapSize.x = 924 * 2;
+    light.shadow.mapSize.y = 924 * 2;
+    scene.add( light );
+    scene.add(lightA);
+
+    window.addEventListener( 'resize', onWindowResize, false );
+}
+
+function onWindowResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize( window.innerWidth, window.innerHeight );
+}
+var pisox = 100
+var pisoy = 100
+var pisoz = 3
+
+function initPhysics() {
+    // Physics configuration
+    collisionConfiguration = new Ammo.btDefaultCollisionConfiguration();
+    dispatcher = new Ammo.btCollisionDispatcher( collisionConfiguration );
+    broadphase = new Ammo.btDbvtBroadphase();
+    solver = new Ammo.btSequentialImpulseConstraintSolver();
+    physicsWorld = new Ammo.btDiscreteDynamicsWorld( dispatcher, broadphase, solver, collisionConfiguration );
+    physicsWorld.setGravity( new Ammo.btVector3( 0, - 6, 0 ) );
+
+    // Create the terrain body
+    var groundShape = new Ammo.btBoxShape(new Ammo.btVector3(270, .6, 160));
+    var groundTransform = new Ammo.btTransform();
+    groundTransform.setIdentity();
+
+    // Shifts the terrain, since bullet re-centers it on its bounding box.
+    var groundMass = 0;
+    var groundLocalInertia = new Ammo.btVector3( 0, 0, 0 );
+    var groundMotionState = new Ammo.btDefaultMotionState( groundTransform );
+    var groundBody = new Ammo.btRigidBody( new Ammo.btRigidBodyConstructionInfo( groundMass, groundMotionState, groundShape, groundLocalInertia ) );
+    physicsWorld.addRigidBody( groundBody );
+}
+
+function generateObject(objectSize, chooseColor, posX, posY, posZ, rotX, rotY, rotZ, out) {
+    var threeObject = null;
+    var shape = null;
+    var margin = 0.05;
+    var threeObject2 = null;
+
+    // var geometry2 = new THREE.BoxBufferGeometry(1, 1, 1);
+    // var material2 = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+    // var cubeA = new THREE.Mesh(geometry2, material2);
+    // cubeA.position.set(10, 11, 10);
+    // scene.add(cubeA)
+
+    // Cylinder
+    var radius = 0.1 + objectSize;
+    var outerRadius = radius;
+    var innerRadius = radius * 0.8;
+    var height = 0.02;
+
+    function createCylinder(decrease){
+        radius = radius/ decrease
+        outerRadius = outerRadius/ decrease
+        innerRadius = innerRadius/ decrease
+        var arcShape = new THREE.Shape();
+        arcShape.moveTo(outerRadius * 2, outerRadius);
+        arcShape.absarc(outerRadius, outerRadius, outerRadius, 0, Math.PI * 2, false);
+        var holePath = new THREE.Path();
+        holePath.moveTo(outerRadius + innerRadius, outerRadius);
+        holePath.absarc(outerRadius, outerRadius, innerRadius, 0, Math.PI * 2, true);
+        arcShape.holes.push(holePath);
+        var geometry = new THREE.ExtrudeGeometry(arcShape, {
+            amount: height,
+            bevelEnabled: false,
+            steps: 1,
+            curveSegments: 60
+        });
+        geometry.center();
+        geometry.rotateX(Math.PI * -.5);
+        return geometry
+    }
+      
+
+        threeObject = new THREE.Mesh( createCylinder(1), createObjectMaterial(chooseColor) );
+        shape = new Ammo.btCylinderShape( new Ammo.btVector3( radius, height * 0.5, radius ) );
+        shape.setMargin( margin );
+
+        threeObject.rotation.z= 3.3
+        var mass = objectSize * 5;
+        var localInertia = new Ammo.btVector3( 0, 0,0 );
+        shape.calculateLocalInertia( mass, localInertia );
+        var transform = new Ammo.btTransform();
+        transform.setIdentity('perro');
+        transform.setOrigin( new Ammo.btVector3( posX, posY, posZ ) );
+        transform.setRotation(new Ammo.btQuaternion(rotX, rotY , rotZ, 1.2));
+        var motionState = new Ammo.btDefaultMotionState( transform );
+        var rbInfo = new Ammo.btRigidBodyConstructionInfo( mass, motionState, shape, localInertia );
+        var body= new Ammo.btRigidBody(rbInfo);
+        bodies.push(body)
+        numBod += 1
+        console.log(numBod)
+
+        threeObject.userData.physicsBody = bodies[numBod-1];
+
+        threeObject.receiveShadow = true;
+        threeObject.castShadow = true;
+        threeObject.position.x= 0;
+        threeObject.name= subRingNum*2-1
+        scene.add(threeObject);
+        dynamicObjects.push(threeObject);
+        physicsWorld.addRigidBody(bodies[numBod - 1]);
+    
+
+
+    //  var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+    var cubeA = new THREE.Mesh(createCylinder(1.5), createObjectMaterial(chooseColor));
+    cubeA.position.set(10, 10, 10);
+    cubeA.receiveShadow = true;
+    cubeA.castShadow = true;
+    cubeA.position.x = 0;
+    cubeA.name = subRingNum *2
+    subRings.push(cubeA)
+     
+    scene.add(subRings[subRingNum]);
+    subRingNum += 1
+    // scene.add(cubeA);
+
+    //create a group and add the two cubes
+    //These cubes can now be rotated / scaled etc as a group
+
+
+    // 
+
+    ///////////////////
+}
+
+
+
+function positionInternRing(params) {
+    threeObject2.position.x = threeObject.position.x + 1
+}
+
+function createObjectMaterial(chooseColor) {
+    var c = chooseColor
+    return new THREE.LineBasicMaterial({ color: c }  );
+}
+
+function animate() {
+    requestAnimationFrame( animate );
+    render();
+    stats.update();
+}
+      
+var arrax= [Math.random(), Math.random(), Math.random(),Math.random(), Math.random() ]
+var arrax = 0
+
+function rrc() {
+    r= Math.random()
+    if (r<  0.7) {
+        a=green
+    }else{
+        a= purple
+    }
+        return a;   
+} 
+function rr() {
+    a = null
+    a = Math.floor((Math.random() * floorX - floorX/2))
+    return a;   
+} 
+function rrs() {
+        a = null
+        a = (Math.random()  +0.5)
+        return a;   
+    } 
+
+function fixcoordX(num) {
+    var a = (coordenadas[num][0] / screenX * floorX - (floorX / 2))/1.07
+    return a
+}
+function fixcoordY(num) {
+    var a = (coordenadas[num][1] / screenY * floorY - (floorY / 2)) / 1.12
+    return a
+}
+
+function ringsize(num) {
+    var a = 1.2 * ringsizes[num]/3
+    return a
+}
+
+function render() {
+    var deltaTime = clock.getDelta();
+  //dynamicObjects.length < maxNumObjects &&
+    if ( time > 0  && justAdded=== false) {
+        setTimeout(function () { jump() }, 500);
+        function jump() {
+            justAdded = false
+        }
+        generateObject(ringsize(numRingX), rrc(), fixcoordX(numRingX),10, fixcoordY(numRingY), fO.rotX, fO.rotY, fO.rotZ, true);
+        justAdded = true
+        if (numRingX < coordenadas.length-1) {
+            numRingX += 1
+            numRingY += 1 
+        }else{
+            numRingX = 0
+            numRingY = 0 
+        }
+        numRingControl += 1 
+        removeCy(numRingControl - 96);
+        numRingControl += 1
+        removeCy(numRingControl - 96);
+
+        physicsWorld.removeRigidBody(bodies[numBod - 96])
+
+console.log(scene.children.length)
+    }
+
+    updatePhysics( deltaTime );
+
+    for (let index = 0; index < subRings.length; index++) {
+
+        if (subRingNum > index ) {
+        // console.log(subRingNum)
+        subRings[index].position.x = dynamicObjects[index].position.x
+        subRings[index].position.y = dynamicObjects[index].position.y
+        subRings[index].position.z = dynamicObjects[index].position.z
+        subRings[index].rotation.x = dynamicObjects[index].rotation.x
+        subRings[index].rotation.y = dynamicObjects[index].rotation.y
+        subRings[index].rotation.z = dynamicObjects[index].rotation.z
+        } 
+    }
+    renderer.render( scene, camera );
+    time += deltaTime;
+}
+
+
+    function removeCy(ind) {
+        var object = scene.getObjectByName(ind, true);
+        scene.remove(object)
+
+        // var object2 = scene.getObjectByName(subRings.ind, true);
+        // scene.remove(object2)
+
+    }
+
+    setTimeout(function () { removeCy(0); }, 3000);
+
+
+function updatePhysics( deltaTime ) {
+    physicsWorld.stepSimulation( deltaTime, 1000 );
+    
+
+    for ( var i = 0, il = dynamicObjects.length; i < il; i ++ ) {
+        var objThree = dynamicObjects[ i ];
+        var objPhys = objThree.userData.physicsBody;
+        var ms = objPhys.getMotionState();
+        if ( ms ) {
+            ms.getWorldTransform( transformAux1 );
+            var p = transformAux1.getOrigin();
+            var q = transformAux1.getRotation();
+            objThree.position.set( p.x(), p.y(), p.z() );
+            objThree.quaternion.set( q.x(), q.y(), q.z(), q.w() );
+        }
+    }
+}
+</script>
+	</body>
+</html>
