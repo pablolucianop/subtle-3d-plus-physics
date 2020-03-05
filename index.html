@@ -44,7 +44,7 @@ let numRingY = 0
 let numRingControl = 0
 var ringsizes = [3, 2, 1, 1, 1, 1, 2, 1, 3, 1, 3, 3, 2, 2, 1, 2, 1, 2, 2, 1, 1, 1, 1, 2, 1, 3, 1, 1, 1, 1, 2, 2, 1, 1, 1, 2, 2, 2, 2, 1, 1, 2, 2, 1, 1, 3, 2, 1, 1, 1, 2, 2, 1, 1, 1, 2]
 var coordenadas = [[31, 78], [82, 38], [130, 70], [142, 14], [212, 82], [224, 11], [264, 50], [312, 29], [394, 48], [455, 98], [509, 20], [637, 14], [561, 78],  [773, 0], [822, 28], [978, 28],  [1048, 78], [1100, 38], [1146, 68], [1160, 16], [1228, 82], [1241, 10], [1286, 49], [1329, 29], [1413, 49], [1470, 142], [1474, 97], [64, 760], [60, 806], [120, 854], [251, 854], [304, 820], [386, 834], [436, 863], [485, 823], [593, 809], [660, 849], [711, 809], [759, 839], [841, 852], [894, 820], [974, 824], [1078, 805], [1081, 760], [1137, 855], [1268, 854], [1324, 820], [1405, 834], [1452, 863], [1502, 823]]
-var fO = {
+var idealCilinder = {
     objectSize: 1.2,
     color: purple,
     posX: 10,
@@ -93,41 +93,6 @@ var subRings = []
 init();
 animate();
 
-    // setTimeout(function () { 
-    //     init();
-    //     animate();
-    //     justAdded = false
-    //     subRingNum = 0
-    //     subRings = []
-    //     numRingControl = 0
-    //     numBod =0
-    //     container, stats;
-    //     camera, scene, renderer;
-    //     terrainMesh;
-    //     clock = new THREE.Clock();
-    //     purple = "rgb(193, 16, 101)"
-    //     green = "rgb(12, 198, 198)"
-    //     //physics variables
-    //     collisionConfiguration;
-    //     dispatcher;
-    //     broadphase;
-    //     solver;
-    //     physicsWorld;
-    //     dynamicObjects = [];
-    //     transformAux1 = new Ammo.btTransform();
-    //     heightData = null;
-    //     ammoHeightData = null;
-    //     time = 0;
-    //     maxNumObjects = coordenadas.length;
-    //     numRingX = 1
-    //     numRingY = 1 
-    //     blo
-    //     justAdded = false
-    //     subRingNum = 0
-    //     subRings = []
-    //     scene = new THREE.Scene();
-
-    //     }, 9000);
 
 function init() {
     initGraphics();
@@ -218,12 +183,6 @@ function generateObject(objectSize, chooseColor, posX, posY, posZ, rotX, rotY, r
     var margin = 0.05;
     var threeObject2 = null;
 
-    // var geometry2 = new THREE.BoxBufferGeometry(1, 1, 1);
-    // var material2 = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-    // var cubeA = new THREE.Mesh(geometry2, material2);
-    // cubeA.position.set(10, 11, 10);
-    // scene.add(cubeA)
-
     // Cylinder
     var radius = 0.1 + objectSize;
     var outerRadius = radius;
@@ -282,8 +241,6 @@ function generateObject(objectSize, chooseColor, posX, posY, posZ, rotX, rotY, r
         dynamicObjects.push(threeObject);
         physicsWorld.addRigidBody(bodies[numBod - 1]);
     
-
-
     //  var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
     var cubeA = new THREE.Mesh(createCylinder(1.5), createObjectMaterial(chooseColor));
     cubeA.position.set(10, 10, 10);
@@ -295,15 +252,6 @@ function generateObject(objectSize, chooseColor, posX, posY, posZ, rotX, rotY, r
      
     scene.add(subRings[subRingNum]);
     subRingNum += 1
-    // scene.add(cubeA);
-
-    //create a group and add the two cubes
-    //These cubes can now be rotated / scaled etc as a group
-
-
-    // 
-
-    ///////////////////
 }
 
 
@@ -368,7 +316,7 @@ function render() {
         function jump() {
             justAdded = false
         }
-        generateObject(ringsize(numRingX), rrc(), fixcoordX(numRingX),10, fixcoordY(numRingY), fO.rotX, fO.rotY, fO.rotZ, true);
+        generateObject(ringsize(numRingX), rrc(), fixcoordX(numRingX),10, fixcoordY(numRingY), idealCilinder.rotX, idealCilinder.rotY, idealCilinder.rotZ, true);
         justAdded = true
         if (numRingX < coordenadas.length-1) {
             numRingX += 1
@@ -392,7 +340,6 @@ console.log(scene.children.length)
     for (let index = 0; index < subRings.length; index++) {
 
         if (subRingNum > index ) {
-        // console.log(subRingNum)
         subRings[index].position.x = dynamicObjects[index].position.x
         subRings[index].position.y = dynamicObjects[index].position.y
         subRings[index].position.z = dynamicObjects[index].position.z
@@ -409,10 +356,6 @@ console.log(scene.children.length)
     function removeCy(ind) {
         var object = scene.getObjectByName(ind, true);
         scene.remove(object)
-
-        // var object2 = scene.getObjectByName(subRings.ind, true);
-        // scene.remove(object2)
-
     }
 
     setTimeout(function () { removeCy(0); }, 3000);
