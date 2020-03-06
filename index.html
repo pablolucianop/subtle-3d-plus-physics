@@ -122,8 +122,8 @@ function initGraphics() {
 
     camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.2, 2000 );
 
-    alert( window.innerWidth)
-    alert(window.innerHeight)
+    // alert( window.innerWidth)
+    // alert(window.innerHeight)
 
     scene = new THREE.Scene();
     scene.background = new THREE.Color( 0xbfd1e5 );
@@ -175,7 +175,7 @@ function initPhysics() {
     physicsWorld.setGravity( new Ammo.btVector3( 0, - 6, 0 ) );
 
     // Create the terrain body
-    var groundShape = new Ammo.btBoxShape(new Ammo.btVector3(270, .6, 160));
+    var groundShape = new Ammo.btBoxShape(new Ammo.btVector3(10, .6, 160));
     var groundTransform = new Ammo.btTransform();
     groundTransform.setIdentity();
 
@@ -184,8 +184,94 @@ function initPhysics() {
     var groundLocalInertia = new Ammo.btVector3( 0, 0, 0 );
     var groundMotionState = new Ammo.btDefaultMotionState( groundTransform );
     var groundBody = new Ammo.btRigidBody( new Ammo.btRigidBodyConstructionInfo( groundMass, groundMotionState, groundShape, groundLocalInertia ) );
-    physicsWorld.addRigidBody( groundBody );
+    // physicsWorld.addRigidBody( groundBody );
+
+
+
+    // / / / / // /  Create the terrain body
+    var groundShape1 = new Ammo.btBoxShape(new Ammo.btVector3(160, .6, 160));
+    var groundTransform1 = new Ammo.btTransform();
+    groundTransform1.setOrigin(new Ammo.btVector3( 44, 44, 44));
+    groundTransform1.setIdentity();
+
+    // Shifts the terrain, since bullet re-centers it on its bounding box.
+    var groundMass1 = 0;
+    var groundLocalInertia1 = new Ammo.btVector3(0, 0, 0);
+    var groundMotionState1 = new Ammo.btDefaultMotionState(groundTransform1);
+    var groundBody1 = new Ammo.btRigidBody(new Ammo.btRigidBodyConstructionInfo(groundMass1, groundMotionState1, groundShape1, groundLocalInertia1));
+    physicsWorld.addRigidBody(groundBody1);
+
+
+
+    // transform.setIdentity('perro');
+
+ 
 }
+
+
+    function generateObject1(objectSize, chooseColor, posX, posY, posZ, rotX, rotY, rotZ, out) {
+        var threeObject = null;
+        var shape = null;
+        var margin = 0.05;
+        var threeObject2 = null;
+
+        // Cube
+        var radius = 0.1 + objectSize;
+        var outerRadius = radius;
+        var innerRadius = radius * 0.8;
+        var height = 0.02;
+
+        function createCylinder(decrease) {
+            var geometry = new THREE.BoxGeometry(objectSize, objectSize, objectSize);
+            return geometry
+        }
+
+
+        threeObject = new THREE.Mesh(createCylinder(1), createObjectMaterial(chooseColor));   
+        shape = new Ammo.btBoxShape(new Ammo.btVector3(objectSize/2, objectSize/2, objectSize/2));
+        shape.setMargin(margin);
+        threeObject.receiveShadow = true;
+        threeObject.rotation.z = 3.3
+        var mass = 0
+        var localInertia = new Ammo.btVector3(0, 0, 0);
+        shape.calculateLocalInertia(mass, localInertia);
+        var transform = new Ammo.btTransform();
+        // transform.setIdentity('perro');
+        transform.setOrigin(new Ammo.btVector3(posX, posY, posZ));
+        transform.setRotation(new Ammo.btQuaternion(rotX, rotY, rotZ, 1.2));
+        var motionState = new Ammo.btDefaultMotionState(transform);
+        var rbInfo = new Ammo.btRigidBodyConstructionInfo(mass, motionState, shape, localInertia);
+        var body = new Ammo.btRigidBody(rbInfo);
+        bodies.push(body)
+        numBod += 1
+        console.log(numBod)
+
+        threeObject.userData.physicsBody = bodies[numBod - 1];
+
+        threeObject.receiveShadow = true;
+        threeObject.castShadow = true;
+        threeObject.position.x = 0;
+        threeObject.name = subRingNum * 2 - 1
+        scene.add(threeObject);
+        dynamicObjects.push(threeObject);
+        physicsWorld.addRigidBody(bodies[numBod - 1]);
+
+        //  var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+        var cubeA = new THREE.Mesh(createCylinder(1.5), createObjectMaterial(chooseColor));
+        cubeA.position.set(10, 10, 10);
+        cubeA.receiveShadow = true;
+        cubeA.castShadow = true;
+        cubeA.position.x = 0;
+        cubeA.name = subRingNum * 2
+        subRings.push(cubeA)
+
+        scene.add(subRings[subRingNum]);
+        subRingNum += 1
+    }
+
+
+
+
 
 function generateObject(objectSize, chooseColor, posX, posY, posZ, rotX, rotY, rotZ, out) {
     var threeObject = null;
@@ -231,7 +317,7 @@ function generateObject(objectSize, chooseColor, posX, posY, posZ, rotX, rotY, r
         var localInertia = new Ammo.btVector3( 0, 0,0 );
         shape.calculateLocalInertia( mass, localInertia );
         var transform = new Ammo.btTransform();
-        transform.setIdentity('perro');
+        // transform.setIdentity('perro');
         transform.setOrigin( new Ammo.btVector3( posX, posY, posZ ) );
         transform.setRotation(new Ammo.btQuaternion(rotX, rotY , rotZ, 1.2));
         var motionState = new Ammo.btDefaultMotionState( transform );
@@ -318,11 +404,18 @@ function ringsize(num) {
     return a
 }
 
+    generateObject1(7, rrc(), 4, 0.5, -35, 0, 0, 0, true);
+    generateObject1(7, rrc(), 9, 0.2, -35, 0, 0, 0, true);
+    generateObject1(7, rrc(), 22, 0.1, -35, 0, 0, 0, true);
+    generateObject1(7, rrc(), 3, 0.2, -35, 0, 0, 0, true);
+
+
 function render() {
     var deltaTime = clock.getDelta();
   //dynamicObjects.length < maxNumObjects &&
     if ( time > 0  && justAdded=== false) {
-        setTimeout(function () { jump() }, 500);
+    
+                setTimeout(function () { jump() }, 500);
         function jump() {
             justAdded = false
         }
