@@ -24,9 +24,16 @@
             left: 20vw; 
             }
         a { color: #a06851; }
+
+        .centered {
+            position: fixed; /* or absolute */
+            top: 50%;
+            left: 50%;
+        }
     </style>
 </head>
 	<body>
+        <h1 class ="centered" > Its snowing rings!</h1>
 		<button type="button" class="button" onclick="alert(4)">Click Me!</button>
 		<div id="container"><br /><br /><br /><br /><br />Loading...</div>
     	<script src="build/three.js"></script>
@@ -114,6 +121,9 @@ function initGraphics() {
     container.appendChild( stats.domElement );
 
     camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.2, 2000 );
+
+    alert( window.innerWidth)
+    alert(window.innerHeight)
 
     scene = new THREE.Scene();
     scene.background = new THREE.Color( 0xbfd1e5 );
@@ -379,5 +389,7 @@ function updatePhysics( deltaTime ) {
     }
 }
 </script>
+
+
 	</body>
 </html>
