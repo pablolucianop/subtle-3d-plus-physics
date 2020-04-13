@@ -1,0 +1,22 @@
+{
+  "name": "subtle-3d-plus-physics",
+  "version": "1.0.0",
+  "description": "��#\u0000 \u0000s\u0000u\u0000b\u0000t\u0000l\u0000e\u0000-\u00003\u0000d\u0000-\u0000p\u0000l\u0000u\u0000s\u0000-\u0000p\u0000h\u0000y\u0000s\u0000i\u0000c\u0000s\u0000\r\u0000 \u0000",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pablolucianop/subtle-3d-plus-physics.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pablolucianop/subtle-3d-plus-physics/issues"
+  },
+  "homepage": "https://github.com/pablolucianop/subtle-3d-plus-physics#readme",
+  "dependencies": {
+    "eslint": "^6.8.0"
+  }
+}
